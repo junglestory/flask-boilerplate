@@ -43,7 +43,23 @@ class DatabaseManager:
     def execute_query(self, query, value):
         cs = self.conn.cursor()
         result = 0
+        
+        try:
+            cs.execute(query, value)
+            self.conn.commit()
+        except Exception as e:
+            self.logger.error(e)
+            self.conn.rollback()
+            result = -1
+        finally:
+            cs.close()
+            return result
 
+
+    def execute_query_bulk(self, query, value):
+        cs = self.conn.cursor()
+        result = 0
+        
         try:
             cs.executemany(query, value)
             self.conn.commit()
